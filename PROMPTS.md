@@ -40,8 +40,8 @@ data arrives from source systems.
 
 ```
 In the Volume /Volumes/<catalog>/<your_schema>/landing there are raw banking
-files: customers.csv, accounts.csv, branches.csv, customer_events.csv, and
-card_transactions_*.json.
+files, one folder per source: customers/, accounts/, branches/,
+customer_events/ (CSV) and card_transactions/ (JSON shards).
 
 Profile them for me without creating any tables. For each file: row count,
 columns, and a sample. Then specifically find and count the data-quality

@@ -377,11 +377,11 @@ if n_warn:
 # COMMAND ----------
 
 # Idempotent: clear any previous run so re-running never doubles the data.
+# Files land in per-entity subdirectories, so remove recursively.
 try:
     existing = dbutils.fs.ls(LANDING)
     for f in existing:
-        if not f.path.endswith("/"):
-            dbutils.fs.rm(f.path)
+        dbutils.fs.rm(f.path, recurse=True)
     if existing:
         print(f"cleared {len(existing)} existing item(s) from {LANDING}")
 except Exception:
@@ -436,16 +436,19 @@ print(f"  100x transaction amount typos: {d['txn_amount_outlier_100x']:>4}")
 
 # COMMAND ----------
 
-print("files landed in your Volume:\n")
-for f in dbutils.fs.ls(LANDING):
-    print(f"  {f.name:<28} {f.size:>10,} bytes")
+print("source folders landed in your Volume (one per entity):\n")
+for d in dbutils.fs.ls(LANDING):
+    files = [f for f in dbutils.fs.ls(d.path)]
+    total = sum(f.size for f in files)
+    print(f"  {d.name:<22} {len(files)} file(s)  {total:>10,} bytes")
 
 # COMMAND ----------
 
 # CSV lands as all-strings, which is what a raw ingest really looks like.
+# Auto Loader reads a directory, so we point spark.read at the folder too.
 display(
     spark.read.option("header", "true").option("inferSchema", "false")
-    .csv(f"{LANDING}/customers.csv")
+    .csv(f"{LANDING}/customers/")
     .select("customer_id", "date_of_birth", "home_state", "segment",
             "acquisition_channel", "source_bank", "customer_status", "updated_at")
     .limit(15)
@@ -453,7 +456,7 @@ display(
 
 # COMMAND ----------
 
-display(spark.read.json(f"{LANDING}/card_transactions_*.json").limit(10))
+display(spark.read.json(f"{LANDING}/card_transactions/").limit(10))
 
 # COMMAND ----------
 
@@ -462,9 +465,10 @@ display(spark.read.json(f"{LANDING}/card_transactions_*.json").limit(10))
 
 # COMMAND ----------
 
-expected = {"customers.csv", "accounts.csv", "branches.csv", "customer_events.csv"}
-present = {f.name for f in dbutils.fs.ls(LANDING)}
-shards = sorted(n for n in present if n.startswith("card_transactions_"))
+expected = {"customers", "accounts", "branches", "customer_events", "card_transactions"}
+present = {f.name.rstrip("/") for f in dbutils.fs.ls(LANDING)}
+shards = [f.name for f in dbutils.fs.ls(f"{LANDING}/card_transactions/")] \
+    if "card_transactions" in present else []
 
 print("=" * 70)
 print("  STRATEGY CORPS LAKEHOUSE WORKSHOP — SETUP COMPLETE")
@@ -473,7 +477,7 @@ print(f"  user     : {USER}")
 print(f"  schema   : {FQ}")
 print(f"  volume   : {LANDING}")
 print(f"  checks   : {n_pass} passed, {n_warn} warning(s), 0 failures")
-print(f"  files    : {len(present)} landed "
+print(f"  sources  : {len(present)} folders landed "
       f"({len(shards)} transaction shards)")
 print("=" * 70)
 
@@ -482,7 +486,7 @@ if expected.issubset(present) and shards:
     print("     You build the medallion live in the session — please don't run ahead.")
 else:
     missing = expected - present
-    print(f"\n  ⚠️  Missing expected files: {missing or 'transaction shards'}. "
+    print(f"\n  ⚠️  Missing expected source folders: {missing or 'transaction shards'}. "
           f"Re-run this notebook.")
 
 # COMMAND ----------

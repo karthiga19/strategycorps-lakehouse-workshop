@@ -36,7 +36,7 @@ CREATE OR REFRESH STREAMING TABLE bronze_customers
   COMMENT 'Raw customer records as landed (all strings, includes duplicates and planted defects).'
 AS SELECT *, _metadata.file_path AS _source_file, current_timestamp() AS _ingested_at
 FROM STREAM read_files(
-  '${landing}/customers.csv',
+  '${landing}/customers/',
   format => 'csv', header => 'true', inferColumnTypes => 'false'
 );
 
@@ -44,7 +44,7 @@ CREATE OR REFRESH STREAMING TABLE bronze_accounts
   COMMENT 'Raw account records as landed.'
 AS SELECT *, _metadata.file_path AS _source_file, current_timestamp() AS _ingested_at
 FROM STREAM read_files(
-  '${landing}/accounts.csv',
+  '${landing}/accounts/',
   format => 'csv', header => 'true', inferColumnTypes => 'false'
 );
 
@@ -52,7 +52,7 @@ CREATE OR REFRESH STREAMING TABLE bronze_branches
   COMMENT 'Raw branch dimension as landed.'
 AS SELECT *, _metadata.file_path AS _source_file, current_timestamp() AS _ingested_at
 FROM STREAM read_files(
-  '${landing}/branches.csv',
+  '${landing}/branches/',
   format => 'csv', header => 'true', inferColumnTypes => 'false'
 );
 
@@ -60,7 +60,7 @@ CREATE OR REFRESH STREAMING TABLE bronze_customer_events
   COMMENT 'Raw customer lifecycle events as landed (acquired / attrited / reactivated).'
 AS SELECT *, _metadata.file_path AS _source_file, current_timestamp() AS _ingested_at
 FROM STREAM read_files(
-  '${landing}/customer_events.csv',
+  '${landing}/customer_events/',
   format => 'csv', header => 'true', inferColumnTypes => 'false'
 );
 
@@ -68,7 +68,7 @@ CREATE OR REFRESH STREAMING TABLE bronze_card_transactions
   COMMENT 'Raw card transactions as landed (JSON shards, includes duplicates and 100x typos).'
 AS SELECT *, _metadata.file_path AS _source_file, current_timestamp() AS _ingested_at
 FROM STREAM read_files(
-  '${landing}/card_transactions_*.json',
+  '${landing}/card_transactions/',
   format => 'json'
 );
 

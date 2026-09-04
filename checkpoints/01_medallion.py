@@ -48,16 +48,16 @@ def count(t):
 
 csv_opts = {"header": "true", "inferSchema": "false"}
 
-for name, fname in [("customers", "customers.csv"), ("accounts", "accounts.csv"),
-                    ("branches", "branches.csv"),
-                    ("customer_events", "customer_events.csv")]:
-    (spark.read.options(**csv_opts).csv(f"{LANDING}/{fname}")
+# Each source lands in its own subdirectory; read the directory (as Auto Loader
+# does in the DLT version).
+for name in ["customers", "accounts", "branches", "customer_events"]:
+    (spark.read.options(**csv_opts).csv(f"{LANDING}/{name}/")
         .withColumn("_source_file", F.col("_metadata.file_path"))
         .withColumn("_ingested_at", F.current_timestamp())
         .write.mode("overwrite").option("overwriteSchema", "true")
         .saveAsTable(f"{FQ}.bronze_{name}"))
 
-(spark.read.json(f"{LANDING}/card_transactions_*.json")
+(spark.read.json(f"{LANDING}/card_transactions/")
     .withColumn("_source_file", F.col("_metadata.file_path"))
     .withColumn("_ingested_at", F.current_timestamp())
     .write.mode("overwrite").option("overwriteSchema", "true")

@@ -512,6 +512,7 @@ def inject_defects(seed, customers, accounts, transactions):
 # ---------------------------------------------------------------------------
 
 def _write_csv(path, rows, fields):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
@@ -523,6 +524,7 @@ def _write_json_shards(path_prefix, rows, n_shards):
     """Newline-delimited JSON, sharded, so bronze ingestion reads a directory of
     files -- closer to how card transactions actually land, and what Auto Loader
     in the DLT pipeline expects."""
+    os.makedirs(os.path.dirname(path_prefix), exist_ok=True)
     size = math.ceil(len(rows) / n_shards)
     written = []
     for s in range(n_shards):
@@ -561,12 +563,15 @@ def generate(seed, outdir):
     branches, customers, accounts, transactions, events = build(seed)
     defects = inject_defects(seed, customers, accounts, transactions)
 
-    _write_csv(os.path.join(outdir, "customers.csv"), customers, CUSTOMER_FIELDS)
-    _write_csv(os.path.join(outdir, "accounts.csv"), accounts, ACCOUNT_FIELDS)
-    _write_csv(os.path.join(outdir, "branches.csv"), branches, BRANCH_FIELDS)
-    _write_csv(os.path.join(outdir, "customer_events.csv"), events, EVENT_FIELDS)
+    # Each source lands in its own subdirectory. Auto Loader (STREAM read_files)
+    # ingests a *directory*, so one folder per entity is the clean pattern and
+    # keeps the DLT pipeline's read_files paths unambiguous.
+    _write_csv(os.path.join(outdir, "customers", "customers.csv"), customers, CUSTOMER_FIELDS)
+    _write_csv(os.path.join(outdir, "accounts", "accounts.csv"), accounts, ACCOUNT_FIELDS)
+    _write_csv(os.path.join(outdir, "branches", "branches.csv"), branches, BRANCH_FIELDS)
+    _write_csv(os.path.join(outdir, "customer_events", "customer_events.csv"), events, EVENT_FIELDS)
     shards = _write_json_shards(
-        os.path.join(outdir, "card_transactions"), transactions, 4)
+        os.path.join(outdir, "card_transactions", "card_transactions"), transactions, 4)
 
     return {
         "branches": len(branches),

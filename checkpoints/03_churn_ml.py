@@ -57,6 +57,10 @@ LABEL = "attrition_flag"
 pdf = spark.table(f"{FQ}.gold_customer_360").select(
     *NUMERIC, *CATEGORICAL, LABEL).toPandas()
 
+# Spark DECIMAL columns arrive as Python Decimal objects, which break MLflow's
+# JSON signature/input-example serialization. Force plain floats.
+for c in NUMERIC:
+    pdf[c] = pdf[c].astype("float64")
 pdf[NUMERIC] = pdf[NUMERIC].replace([np.inf, -np.inf], np.nan)
 for c in CATEGORICAL:
     pdf[c] = pdf[c].fillna("unknown").astype(str)

@@ -31,12 +31,15 @@ CREATE OR REFRESH STREAMING TABLE bronze_customers
   COMMENT 'Raw customers as landed.'
 AS SELECT *, _metadata.file_path AS _source_file, current_timestamp() AS _ingested_at
 FROM STREAM read_files(
-  '${landing}/customers.csv',
+  '${landing}/customers/',
   format => 'csv', header => 'true', inferColumnTypes => 'false'
 );
 ```
 
 - `STREAM read_files(...)` is Auto Loader — it ingests only new files each run.
+- **Point it at a directory, not a single file.** Streaming `read_files` monitors
+  a *folder* — an exact file path (`.../customers.csv`) fails with "not a
+  directory". Land each source in its own subfolder (`landing/customers/`, …).
 - `inferColumnTypes => 'false'` keeps CSV as strings, so casting is a visible
   silver step. JSON: `format => 'json'` (types inferred, which is fine for JSON).
 - `${landing}` is a **pipeline configuration** value you set when creating the
