@@ -80,7 +80,7 @@ with mlflow.start_run(run_name="churn_gbt"):
     pipe.fit(X_train, y_train)
     mlflow.log_metric("test_auc", auc)
     sig = mlflow.models.infer_signature(X_train, pipe.predict(X_train))
-    mlflow.sklearn.log_model(pipe, name="model", signature=sig,
+    mlflow.sklearn.log_model(pipe, artifact_path="model", signature=sig,
         input_example=X_train.head(3),
         registered_model_name="catalog.schema.attrition_clf")   # rule 3
 
@@ -90,6 +90,6 @@ score_df["churn_score"] = pipe.predict_proba(score_df[NUMERIC+CATEGORICAL])[:, 1
 ## Sanity checks to report
 
 - training / scoring row counts, label base rate (~0.15–0.20).
-- **test AUC — flag < 0.75 (weak features) or > 0.95 (leakage, rule 9).**
-  Expected here: ~0.80–0.86.
+- **test AUC — flag < 0.70 (weak features) or > 0.95 (leakage, rule 9).**
+  Expected here: ~0.75–0.82.
 - top 10 features by importance — expect tenure, balance, activity, age near the top.

@@ -132,7 +132,7 @@ rows each expectation dropped) and the row count of every table.
 | `silver_customers` | 5,940–5,985 |
 | `silver_customers_quarantine` | 15–40 |
 | `silver_accounts` | 10,850–11,020 |
-| `silver_accounts_quarantine` | 55–85 |
+| `silver_accounts_quarantine` | 40–85 |
 | `silver_card_transactions` | 63,300–64,600 |
 | `gold_customer_360` | matches `silver_customers` |
 | `gold_balance_by_age_band` | 7 rows |

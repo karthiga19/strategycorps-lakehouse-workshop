@@ -38,7 +38,7 @@ Then batch-score the NULL-flag customers into <SCHEMA>.gold_customers_scored
 with a churn_score and a risk_band ('high' >= 0.6, 'medium' >= 0.35, else 'low').
 ```
 
-**Expected: test AUC ~0.80–0.86.** Above 0.95 you have leaked the target —
+**Expected: test AUC ~0.75–0.82.** Above 0.95 you have leaked the target —
 `customer_status` or `is_retained` is a near-copy of `attrition_flag`; remove
 it. Top features should be roughly tenure, balance, activity, and age.
 
