@@ -1,0 +1,8 @@
+# Facilitator-only material lives in the Databricks workspace, never in the
+# public participant repo.
+facilitator/
+
+# Local dev tooling
+__pycache__/
+*.pyc
+.DS_Store

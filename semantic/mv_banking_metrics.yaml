@@ -1,0 +1,73 @@
+# Strategy Corps banking semantic layer — Unity Catalog metric view (reference)
+#
+# This is the YAML body for Leg 3's metric view. In the session you prompt Genie
+# Code to build it; keep this to compare against. Deploy it by wrapping this body
+# in a CREATE statement against your own gold table (see checkpoints/03_semantic):
+#
+#   CREATE OR REPLACE VIEW <your_schema>.mv_banking_metrics
+#   WITH METRICS LANGUAGE YAML AS $$ <this file> $$
+#
+# One governed definition of every headline metric — the dashboard (Leg 4) and
+# the Genie agent (Leg 5) both read from it, so "average balance" or "retention
+# rate" means exactly one thing everywhere.
+#
+# Requires Databricks Runtime / serverless SQL 17.2+ (YAML version 1.1).
+
+version: 1.1
+source: ${SCHEMA}.gold_customer_360
+comment: "Governed retail-banking metrics: balances, card activity, and switch-in retention, by customer demographics."
+
+dimensions:
+  - name: Age
+    expr: age
+    comment: "Customer age in years (enables 'between 61 and 65' style questions)."
+  - name: Age Band
+    expr: age_band
+  - name: Gender
+    expr: gender
+  - name: State
+    expr: home_state
+    comment: "2-letter home state code."
+  - name: Region
+    expr: region
+  - name: Segment
+    expr: segment
+    comment: "mass_market, affluent, or private."
+  - name: Acquisition Channel
+    expr: acquisition_channel
+  - name: Source Bank
+    expr: source_bank
+    comment: "Prior bank a switch-in customer moved from; null if not a switch-in."
+  - name: Moved From Bank
+    expr: moved_from_bank
+    comment: "TRUE if the customer moved to us from another bank (switch_kit)."
+  - name: Customer Status
+    expr: customer_status
+  - name: Retained
+    expr: is_retained
+    comment: "TRUE if the customer has not attrited."
+
+measures:
+  - name: Customer Count
+    expr: COUNT(1)
+  - name: Average Balance
+    expr: AVG(total_balance)
+    comment: "Average total balance across customers in the group."
+  - name: Total Balance
+    expr: SUM(total_balance)
+  - name: Median Balance
+    expr: PERCENTILE(total_balance, 0.5)
+  - name: Debit Card Swipes
+    expr: SUM(debit_swipe_count)
+    comment: "Count of debit-card swipe transactions."
+  - name: Total Transactions
+    expr: SUM(txn_count)
+  - name: Total Spend
+    expr: SUM(total_spend)
+  - name: Retained Customers
+    expr: SUM(CASE WHEN is_retained THEN 1 ELSE 0 END)
+  - name: Retention Rate
+    expr: AVG(CASE WHEN is_retained THEN 1.0 ELSE 0.0 END)
+    comment: "Share retained; filter to Moved From Bank = true for switch-in retention."
+  - name: Attrition Rate
+    expr: AVG(CASE WHEN customer_status = 'attrited' THEN 1.0 ELSE 0.0 END)
