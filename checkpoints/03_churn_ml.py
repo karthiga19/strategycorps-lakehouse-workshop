@@ -6,6 +6,19 @@
 # MAGIC it to Unity Catalog, and batch-scores the recent joiners (null label).
 # MAGIC Expected test AUC ~0.80–0.86. Requires `gold_customer_360`.
 
+# MAGIC %md
+# MAGIC mlflow + scikit-learn are preinstalled on most Databricks compute, but not
+# MAGIC on every serverless environment. The next cell installs them defensively so
+# MAGIC this runs anywhere; it is a fast no-op where they already exist.
+
+# COMMAND ----------
+
+# MAGIC %pip install -q mlflow scikit-learn
+
+# COMMAND ----------
+
+dbutils.library.restartPython()
+
 # COMMAND ----------
 
 dbutils.widgets.text("catalog", "", "1. Catalog (ask your facilitator)")

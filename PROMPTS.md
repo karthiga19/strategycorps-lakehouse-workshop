@@ -129,8 +129,8 @@ rows each expectation dropped) and the row count of every table.
 
 | Table | Rows |
 |---|---|
-| `silver_customers` | 5,965–5,985 |
-| `silver_customers_quarantine` | 20–35 |
+| `silver_customers` | 5,940–5,985 |
+| `silver_customers_quarantine` | 15–40 |
 | `silver_accounts` | 10,850–11,020 |
 | `silver_accounts_quarantine` | 55–85 |
 | `silver_card_transactions` | 63,300–64,600 |
@@ -200,7 +200,7 @@ and certified='true'. Finally, run three validation queries with MEASURE():
 The three validation queries are the workshop's anchor questions:
 
 1. **Average balance, ages 61–65:** roughly **$23,000–$35,000** (n ≈ 470–500).
-2. **Debit card swipes, ages 21–25:** roughly **2,400–2,750**.
+2. **Debit card swipes, ages 21–25:** roughly **2,300–2,750**.
 3. **Moved to our bank:** roughly **1,020–1,170** customers; **retention rate
    76–80%**.
 
@@ -293,7 +293,7 @@ These are the three questions Strategy Corps' bank customers care about — veri
 the agent gets them right:
 
 1. **Average balance, ages 61–65:** ~$23,000–$35,000.
-2. **Debit card swipes, ages 21–25:** ~2,400–2,750.
+2. **Debit card swipes, ages 21–25:** ~2,300–2,750.
 3. **Moved to our bank:** ~1,020–1,170; **stayed:** ~800–907 (retention ~76–80%).
 
 ### Read the code
