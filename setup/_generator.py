@@ -257,7 +257,10 @@ def build(seed):
         cid = f"CUST{1000000 + i}"
         st = _weighted(rng, STATES, wi=3)
         age = _draw_age(rng)
-        dob = date(TODAY.year - age, rng.randint(1, 12), rng.randint(1, 28))
+        # Subtract whole years plus a partial year so the *computed* age
+        # (FLOOR(days/365.25)) equals the drawn age exactly — otherwise a random
+        # month/day can make a drawn-18 customer compute as 17 and get dropped.
+        dob = TODAY - timedelta(days=round(age * 365.25) + rng.randint(20, 330))
 
         seg_name, _, seg_med, seg_sigma, seg_amin, seg_amax = _weighted(rng, SEGMENTS)
         acquisition = _weighted(rng, ACQUISITION_CHANNELS)[0]

@@ -138,7 +138,7 @@ CREATE OR REPLACE TABLE {FQ}.silver_accounts AS
 SELECT a.account_id, a.customer_id, a.account_type, CAST(a.open_date AS DATE) AS open_date,
        a.account_status, CAST(a.balance AS DOUBLE) AS balance
 FROM {FQ}.bronze_accounts a
-SEMI JOIN {FQ}.silver_customers c ON a.customer_id = c.customer_id
+SEMI JOIN (SELECT DISTINCT customer_id FROM {FQ}.bronze_customers) c ON a.customer_id = c.customer_id
 WHERE CAST(a.balance AS DOUBLE) >= 0 AND CAST(a.balance AS DOUBLE) < 10000000
 """)
 
@@ -149,7 +149,7 @@ SELECT a.account_id, a.customer_id, CAST(a.balance AS DOUBLE) AS balance,
        WHEN CAST(a.balance AS DOUBLE) < 0 THEN 'negative_balance'
        WHEN CAST(a.balance AS DOUBLE) >= 10000000 THEN 'balance_outlier_100x' END AS quarantine_reason
 FROM {FQ}.bronze_accounts a
-LEFT JOIN {FQ}.silver_customers c ON a.customer_id = c.customer_id
+LEFT JOIN (SELECT DISTINCT customer_id FROM {FQ}.bronze_customers) c ON a.customer_id = c.customer_id
 WHERE c.customer_id IS NULL OR CAST(a.balance AS DOUBLE) < 0 OR CAST(a.balance AS DOUBLE) >= 10000000
 """)
 

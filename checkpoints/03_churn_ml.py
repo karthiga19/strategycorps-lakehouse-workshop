@@ -13,7 +13,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install -q mlflow scikit-learn
+# MAGIC %pip install -q "mlflow<3" scikit-learn
 
 # COMMAND ----------
 

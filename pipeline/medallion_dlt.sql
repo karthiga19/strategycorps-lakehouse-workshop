@@ -192,8 +192,12 @@ AS SELECT
   a.account_status,
   CAST(a.balance AS DOUBLE) AS balance
 FROM bronze_accounts a
--- Orphan accounts (no matching customer) fail this join and are excluded.
-SEMI JOIN silver_customers c ON a.customer_id = c.customer_id;
+-- Orphan accounts (customer_id in no customer record at all) fail this join and
+-- are excluded. Checked against the full customer master (bronze), not silver,
+-- so an account is only an "orphan" if its customer truly does not exist — not
+-- merely because the customer was dropped downstream for a bad DOB.
+SEMI JOIN (SELECT DISTINCT customer_id FROM bronze_customers) c
+  ON a.customer_id = c.customer_id;
 
 CREATE OR REFRESH MATERIALIZED VIEW silver_accounts_quarantine
   COMMENT 'Account rows that failed a silver expectation, with the reason.'
@@ -205,7 +209,8 @@ AS SELECT
     WHEN CAST(a.balance AS DOUBLE) >= 10000000 THEN 'balance_outlier_100x'
   END AS quarantine_reason
 FROM bronze_accounts a
-LEFT JOIN silver_customers c ON a.customer_id = c.customer_id
+LEFT JOIN (SELECT DISTINCT customer_id FROM bronze_customers) c
+  ON a.customer_id = c.customer_id
 WHERE c.customer_id IS NULL
    OR CAST(a.balance AS DOUBLE) < 0
    OR CAST(a.balance AS DOUBLE) >= 10000000;
