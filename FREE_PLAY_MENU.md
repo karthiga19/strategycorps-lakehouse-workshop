@@ -99,6 +99,50 @@ answer. No jargon; explain "medallion" if you use it.
 
 ---
 
+## 6 · Add a retention-manager page to your dashboard
+
+**Great if you finished the dashboard early.** Your Leg 3 dashboard is built for
+an analyst. Add a second page aimed at a **retention manager** — someone who owns
+"who's switching in, and are we keeping them?" Load the dashboard skill first if
+it isn't already:
+
+```
+Read the skill at
+/Workspace/Users/<your-email>/.assistant/skills/databricks-aibi-dashboards/SKILL.md
+and follow its widget and grid rules.
+```
+
+```
+Add a second page called "Retention & Switch-in" to my dashboard. Use these
+datasets from <SCHEMA>: gold_retention_summary and gold_customer_360.
+
+Widgets:
+1. Three KPI counters across the top — total customers who moved to us
+   (sum of moved_in from gold_retention_summary), overall switch-in retention
+   rate (sum(stayed)/sum(moved_in)), and total customers who attrited
+   (count of gold_customer_360 where customer_status = 'attrited').
+2. A bar chart from gold_retention_summary: stayed vs left_us by source_bank
+   (color-split by the two outcomes).
+3. A bar chart of retention rate by segment — from gold_customer_360, the
+   share where is_retained = true, grouped by segment.
+4. A table of gold_retention_summary: source_bank, moved_in, stayed, left_us,
+   retention_rate, sorted by moved_in descending.
+5. A single-select filter on segment that drives the page.
+
+Format counts as whole numbers and retention_rate as a percentage with one
+decimal. Use the 6-column grid. Redeploy the dashboard and give me the URL.
+```
+
+**The interesting question:** does retention differ by which bank customers
+switched *from*? If one source bank's switchers churn faster, that is a signal
+about how they were acquired — worth a sentence to your VP.
+
+> Want to fold in the churn model too? If you did option 1, swap
+> `gold_customer_360` for `gold_customers_scored` and add a table of the
+> highest `churn_score` customers as a live watchlist.
+
+---
+
 ## Demo time
 
 Two minutes each: What did you try? Show the thing. What surprised you about
