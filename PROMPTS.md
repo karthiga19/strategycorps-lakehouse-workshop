@@ -123,6 +123,8 @@ GOLD — materialized views:
 
 Then run the pipeline and show me the pipeline's data-quality metrics (how many
 rows each expectation dropped) and the row count of every table.
+
+DO NOT USE the answer key at pipeline/medallion_dlt.sql - that file exists to compare your outputs againts ground truth.
 ```
 
 ### Expected
@@ -193,6 +195,9 @@ and certified='true'. Finally, run three validation queries with MEASURE():
 1. Average Balance where Age BETWEEN 61 AND 65
 2. Debit Card Swipes where Age BETWEEN 21 AND 25
 3. Customer Count and Retention Rate where Moved From Bank = true
+
+DO NOT USE the answer key at semantic/my_banking_metrics.yaml 
+- that file exists to compare your outputs againts ground truth.
 ```
 
 ### Expected
